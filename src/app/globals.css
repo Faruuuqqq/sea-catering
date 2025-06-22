@@ -1,26 +1,50 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream text-text-main;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* === Tombol (Buttons) === */
+  .btn {
+    @apply inline-block font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300;
+  }
+  .btn:hover {
+    @apply transform -translate-y-0.5 shadow-lg;
+  }
+  .btn-primary {
+    @apply bg-dark-green text-white hover:bg-opacity-90;
+  }
+  .btn-secondary {
+    @apply bg-accent text-dark-green hover:bg-opacity-90;
+  }
+
+  /* === Kartu (Cards) === */
+  .card {
+    @apply bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300;
+  }
+  .card:hover {
+    @apply shadow-xl transform -translate-y-1;
+  }
+  .card-body {
+    @apply p-6 flex flex-col flex-grow;
+  }
+
+  /* === Formulir (Forms) === */
+  .form-input {
+    @apply w-full p-3 border border-gray-300 rounded-lg shadow-sm bg-white;
+  }
+  .form-input:focus {
+    @apply border-mid-green ring-2 ring-mid-green/50 outline-none;
+  }
+  .form-label {
+    @apply block text-dark-green font-semibold mb-2;
+  }
 }
