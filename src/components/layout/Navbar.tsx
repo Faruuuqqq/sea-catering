@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -7,7 +6,7 @@ import { useState } from 'react';
 
 const navLinks = [
   { name: 'Home', href: '/' },
-  { name: 'Menu / Meal Plans', href: '/menu' },
+  { name: 'Meal Plans', href: '/menu' },
   { name: 'Subscription', href: '/subscription' },
   { name: 'Contact Us', href: '/contact' },
 ];

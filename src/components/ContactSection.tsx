@@ -7,7 +7,7 @@ const ContactSection = () => {
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Contact Us</h2>
         <p className="text-gray-700">Have a question? Get in touch with our manager:</p>
         <div className="mt-4 bg-white inline-block p-6 rounded-lg shadow-md">
-          <p className="text-xl font-bold">Brian</p>
+          <p className="text-xl text-gray-700 font-bold">Brian</p>
           <p className="text-lg text-gray-600">08123456789</p>
         </div>
       </div>
