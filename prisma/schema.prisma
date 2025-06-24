@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+model MealPlan {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  price       Int
+  description String
+  image       String
+  details     String
+  createdAt   DateTime @default(now())
+
+  // Relasi: Satu MealPlan bisa dimiliki banyak Subscription
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id            Int      @id @default(autoincrement())
+  customerName  String
+  customerPhone String
+  mealPlanId    Int
+  mealTypes     String[] // Menyimpan [Breakfast, Lunch, Dinner]
+  deliveryDays  String[] // Menyimpan [Monday, Tuesday, ...]
+  allergies     String? // Opsional
+  totalPrice    Float
+  createdAt     DateTime @default(now())
+
+  // Relasi: Subscription ini milik satu MealPlan
+  mealPlan MealPlan @relation(fields: [mealPlanId], references: [id])
+}
+
+model Testimonial {
+  id        Int      @id @default(autoincrement())
+  name      String
+  review    String
+  rating    Int
+  createdAt DateTime @default(now())
+}
