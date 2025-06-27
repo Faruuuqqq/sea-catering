@@ -27,10 +27,11 @@ export async function createTestimonial(formData: FormData) {
 }
 
 export async function createSubscription(data: any) {
-  console.log("Data diterima oleh server:", data);
   try {
     const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
-    if (!plan) throw new Error('Plan tidak ditemukan');
+    if (!plan) {
+      return { success: false, message: 'Meal Plan yang dipilih tidak valid.' };
+    }
 
     const numMealTypes = Object.values(data.mealTypes).filter(Boolean).length;
     const numDeliveryDays = data.deliveryDays.length;
@@ -51,16 +52,22 @@ export async function createSubscription(data: any) {
     });
 
     revalidatePath('/subscription');
-    return { success: true, message: 'Berhasil berlangganan!' };
+    return { success: true, message: 'Berhasil berlangganan! Terima kasih.' };
   } catch (error) {
-    return { error, success: false, message: 'Gagal melakukan langganan.' };
+    console.error("Gagal membuat subscription:", error); 
+    return { success: false, message: 'Terjadi kesalahan di server, silakan coba lagi.' };
   }
 }
 
 export async function getTestimonials() {
-  return await prisma.testimonial.findMany({
+  const testimonialsFromDb = await prisma.testimonial.findMany({
     orderBy: {
       createdAt: 'desc',
     },
   });
+
+  return testimonialsFromDb.map(testimonial => ({
+    ...testimonial,
+    createdAt: testimonial.createdAt.toISOString(),
+  }));
 }
