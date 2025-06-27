@@ -4,9 +4,11 @@ import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 type Testimonial = {
+  id: number;
   name: string;
   review: string;
   rating: number;
+  createdAt: string;
 };
 
 type Props = {
