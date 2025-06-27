@@ -6,6 +6,7 @@ import * as z from 'zod';
 import { useEffect, useState, useTransition } from 'react';
 import { createSubscription, getMealPlans } from '@/lib/actions';
 import type { MealPlan } from '@prisma/client';
+import { useSession } from "next-auth/react";
 
 const subscriptionSchema = z.object({
   name: z.string().min(3, "Nama lengkap diperlukan"),
@@ -19,6 +20,7 @@ const subscriptionSchema = z.object({
 type SubscriptionFormData = z.infer<typeof subscriptionSchema>;
 
 export default function SubscriptionPage() {
+  const { data: session } = useSession();
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -34,15 +36,33 @@ export default function SubscriptionPage() {
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<SubscriptionFormData>({
     resolver: zodResolver(subscriptionSchema),
-    defaultValues: { name: '', phone: '', planId: 0, mealTypes: { breakfast: false, lunch: false, dinner: false }, deliveryDays: [], allergies: '' },
+    defaultValues: {
+      name: '',
+      phone: '', 
+      planId: 0, 
+      mealTypes: { breakfast: false, lunch: false, dinner: false }, 
+      deliveryDays: [], 
+      allergies: '' 
+    },
   });
   const watchedValues = watch();
   
   useEffect(() => {
+    if (session?.user?.name) {
+      reset({ name: session.user.name });
+    }
+  }, [session, reset]);
+
+  useEffect(() => {
+    if (!watchedValues || !watchedValues.mealTypes || !watchedValues.deliveryDays) {
+      return;
+    }
     const selectedPlan = mealPlans.find(p => p.id === Number(watchedValues.planId));
     if (!selectedPlan) { setTotalPrice(0); return; }
+
     const numMealTypes = Object.values(watchedValues.mealTypes).filter(Boolean).length;
     const numDeliveryDays = watchedValues.deliveryDays.length;
+    
     setTotalPrice(selectedPlan.price * numMealTypes * numDeliveryDays * 4.3);
   }, [watchedValues, mealPlans]);
 

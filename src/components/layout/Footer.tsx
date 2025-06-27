@@ -19,7 +19,7 @@ const Footer = () => {
       <div className="container mx-auto py-12 px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           
-          {/* column 1: Branding */}
+          {/* Branding */}
           <div className="lg:col-span-2">
             <h3 className="text-2xl font-bold text-white">SEA Catering</h3>
             <p className="mt-2 text-cream/80 max-w-sm">
@@ -27,7 +27,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* column 2: Quick Links */}
+          {/* Quick Links */}
           <div>
             <h4 className="font-bold text-lg text-white tracking-wider">Quick Links</h4>
             <ul className="mt-4 space-y-2">
@@ -41,7 +41,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* column 3: Social Media */}
+          {/* Social Media */}
           <div>
             <h4 className="font-bold text-lg text-white tracking-wider">Follow Us</h4>
             <div className="flex space-x-4 mt-4">

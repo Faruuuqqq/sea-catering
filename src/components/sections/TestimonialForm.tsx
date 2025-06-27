@@ -1,23 +1,27 @@
 "use client";
 
+import React from 'react';
 import { useState, useTransition } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { createTestimonial } from '@/lib/actions';
+import type { Session } from 'next-auth';
 
-export const TestimonialForm = () => {
+const AuthenticatedForm = ({ session }: { session: Session }) => {
   const [rating, setRating] = useState(0);
   const [isPending, startTransition] = useTransition();
+  
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (formData: FormData) => {
     formData.append('rating', rating.toString());
 
     startTransition(async () => {
       const result = await createTestimonial(formData);
+      alert(result.message); 
       if (result.success) {
-        alert(result.message);
-        (document.getElementById('testimonial-form') as HTMLFormElement)?.reset();
+        formRef.current?.reset();
         setRating(0);
-      } else {
-        alert(result.message || 'Terjadi kesalahan.');
       }
     });
   };
@@ -26,15 +30,27 @@ export const TestimonialForm = () => {
     <div className="card max-w-2xl mx-auto">
       <div className="card-body">
         <h3 className="text-2xl font-bold text-center mb-6 text-dark-green">Bagikan Pengalamanmu</h3>
-        <form id="testimonial-form" action={handleSubmit} className="space-y-4">
+        <form ref={formRef} action={handleSubmit} className="space-y-4">
+          {/* Input Nama */}
           <div>
             <label htmlFor="name" className="form-label">Nama</label>
-            <input type="text" id="name" name="name" className="form-input" required />
+            <input
+              type="text"
+              id="name"
+              name="name"
+              className="form-input bg-gray-100 cursor-not-allowed"
+              defaultValue={session.user?.name || ''}
+              readOnly
+            />
           </div>
+
+          {/* Input Review */}
           <div>
             <label htmlFor="review" className="form-label">Review</label>
             <textarea id="review" name="review" rows={4} className="form-input" required></textarea>
           </div>
+
+          {/* Input Rating Bintang */}
           <div className="mb-2">
             <label className="form-label">Rating</label>
             <div className="flex space-x-1">
@@ -48,6 +64,8 @@ export const TestimonialForm = () => {
               })}
             </div>
           </div>
+
+          {/* Tombol Submit */}
           <button type="submit" disabled={isPending} className="btn btn-primary w-full !mt-6 disabled:bg-gray-400">
             {isPending ? 'Mengirim...' : 'Kirim Review'}
           </button>
@@ -55,4 +73,36 @@ export const TestimonialForm = () => {
       </div>
     </div>
   );
+};
+
+const LoginPrompt = () => {
+  return (
+    <div className="card max-w-2xl mx-auto">
+      <div className="card-body text-center">
+        <h3 className="text-2xl font-bold text-dark-green mb-4">Ingin Memberi Review?</h3>
+        <p className="text-text-main mb-6">Silakan login terlebih dahulu untuk membagikan pengalamanmu bersama kami.</p>
+        <Link href="/login" className="btn btn-primary">
+          Login untuk Memberi Review
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+const LoadingSkeleton = () => {
+  return <div className="card max-w-2xl mx-auto h-96 bg-gray-200 animate-pulse"></div>;
+};
+
+export const TestimonialForm = () => {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <LoadingSkeleton />;
+  }
+
+  if (status === "authenticated") {
+    return <AuthenticatedForm session={session} />;
+  }
+  
+  return <LoginPrompt />;
 };

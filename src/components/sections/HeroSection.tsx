@@ -1,6 +1,9 @@
 import React from 'react';
 
-const HeroSection = () => {
+import type { Session } from "next-auth";
+import Link from 'next/link';
+
+const HeroSection = ({ session }: { session: Session | null }) => {
   return (
     <section className="bg-dark-green text-white">
       <div className="container mx-auto px-4 text-center py-20 md:py-32">
@@ -17,7 +20,12 @@ const HeroSection = () => {
           Welcome to SEA Catering! We provide delicious healthy food that can be customized to your needs, delivered directly to all major cities in Indonesia.
         </p>
          <div className="mt-8">
-            <a href="/subscription" className="btn btn-secondary">Mulai Berlangganan</a>
+            {/* Tombol berubah berdasarkan status login */}
+            {session ? (
+              <Link href="/subscription" className="btn btn-secondary">Lihat Plan Langganan</Link>
+            ) : (
+              <Link href="/register" className="btn btn-secondary">Mulai Sekarang</Link>
+            )}
         </div>
       </div>
     </section>

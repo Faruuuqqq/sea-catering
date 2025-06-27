@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { AuthStatus } from './AuthStatus';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -41,6 +42,9 @@ const Navbar = () => {
                 </Link>
               );
             })}
+            <div className="pl-4">
+              <AuthStatus />
+            </div>
           </div>
 
           {/* Mobile Menu Button (Hamburger) */}
@@ -66,6 +70,9 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
+            <div className="pl-4">
+              <AuthStatus />
+            </div>
         </div>
       )}
     </nav>
