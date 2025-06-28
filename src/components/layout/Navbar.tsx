@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { AuthStatus } from './AuthStatus';
+import { useSession } from 'next-auth/react';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -13,6 +14,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -42,6 +44,16 @@ const Navbar = () => {
                 </Link>
               );
             })}
+            {session && (
+              <Link href="/dashboard" className={`font-semibold transition-colors duration-300 ${pathname === '/dashboard' ? 'text-dark-green' : 'text-text-main/70 hover:text-dark-green'}`}>
+                My Dashboard
+              </Link>
+            )}
+            {session?.user?.role === 'ADMIN' && (
+              <Link href="/admin/dashboard" className={`font-semibold transition-colors duration-300 ${pathname === '/admin/dashboard' ? 'text-dark-green' : 'text-text-main/70 hover:text-dark-green'}`}>
+                Admin
+              </Link>
+            )}
             <div className="pl-4">
               <AuthStatus />
             </div>

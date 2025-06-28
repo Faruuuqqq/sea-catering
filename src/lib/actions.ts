@@ -217,3 +217,37 @@ export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: D
     canceledInRange,
   };
 }
+
+export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: Date }) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Akses ditolak: Hanya admin yang dapat melihat halaman ini.");
+  }
+
+  const whereClause = {
+    createdAt: { gte: from, lte: to },
+  };
+
+  const totalSubscriptions = await prisma.subscription.count();
+  const activeSubscriptions = await prisma.subscription.count({ where: { status: 'ACTIVE' } });
+
+  const newInRange = await prisma.subscription.count({ where: whereClause });
+  const mrr = await prisma.subscription.aggregate({
+    _sum: { totalPrice: true },
+    where: { status: 'ACTIVE' },
+  });
+  const canceledInRange = await prisma.subscription.count({
+    where: {
+      status: 'CANCELED',
+      updatedAt: { gte: from, lte: to }
+    }
+  });
+
+  return {
+    totalSubscriptions,
+    activeSubscriptions,
+    newInRange,
+    mrr: mrr._sum.totalPrice || 0,
+    canceledInRange,
+  };
+}
