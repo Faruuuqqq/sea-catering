@@ -33,9 +33,8 @@ export async function createSubscription(data: any) {
   if (!session?.user?.id) {
     return { success: false, message: "Anda harus login untuk berlangganan." };
   }
-  const userId = parseInt(session.user.id); // ubah id dari string ke number jika perlu
+  const userId = parseInt(session.user.id); 
 
-  console.log("Data diterima oleh server:", data);
   try {
     const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
     if (!plan) {
@@ -106,7 +105,6 @@ export async function registerUser(data: any) {
   }
 }
 
-// --- Action untuk mengambil langganan milik user tertentu ---
 export async function getUserSubscriptions() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -118,7 +116,6 @@ export async function getUserSubscriptions() {
     where: {
       userId: userId,
     },
-    // Sertakan data dari MealPlan agar kita bisa menampilkan nama plan-nya
     include: {
       mealPlan: true, 
     },
@@ -127,7 +124,6 @@ export async function getUserSubscriptions() {
     }
   });
 
-  // Serialisasi data agar aman dikirim ke client component jika perlu
   return subscriptions.map(sub => ({
     ...sub,
     createdAt: sub.createdAt.toISOString(),

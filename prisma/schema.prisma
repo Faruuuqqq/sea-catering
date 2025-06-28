@@ -40,6 +40,9 @@ model Subscription {
   totalPrice    Float
   status        SubscriptionStatus @default(ACTIVE)
 
+  pauseStartDate DateTime?
+  pauseEndDate   DateTime?
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -65,3 +68,4 @@ enum SubscriptionStatus {
   PAUSED
   CANCELED
 }
+
