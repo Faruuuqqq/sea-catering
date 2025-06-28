@@ -33,8 +33,9 @@ export async function createSubscription(data: any) {
   if (!session?.user?.id) {
     return { success: false, message: "Anda harus login untuk berlangganan." };
   }
-  const userId = parseInt(session.user.id); 
+  const userId = parseInt(session.user.id);
 
+  console.log("Data diterima oleh server:", data);
   try {
     const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
     if (!plan) {
@@ -129,4 +130,90 @@ export async function getUserSubscriptions() {
     createdAt: sub.createdAt.toISOString(),
     updatedAt: sub.updatedAt.toISOString(),
   }));
+}
+
+export async function pauseSubscription(subscriptionId: number, pauseStartDate: Date, pauseEndDate: Date) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, message: "Akses ditolak." };
+  }
+  const userId = parseInt(session.user.id);
+
+  const subscription = await prisma.subscription.findFirst({
+    where: { id: subscriptionId, userId: userId },
+  });
+
+  if (!subscription) {
+    return { success: false, message: "Anda tidak berhak mengubah langganan ini." };
+  }
+
+  await prisma.subscription.update({
+    where: { id: subscriptionId },
+    data: { 
+      status: 'PAUSED',
+      pauseStartDate: pauseStartDate,
+      pauseEndDate: pauseEndDate,
+    },
+  });
+
+  revalidatePath('/dashboard');
+  return { success: true, message: "Langganan berhasil dijeda." };
+}
+
+export async function cancelSubscription(subscriptionId: number) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, message: "Akses ditolak." };
+  }
+  const userId = parseInt(session.user.id);
+
+  const subscription = await prisma.subscription.findUnique({
+    where: { id: subscriptionId },
+  });
+
+  if (subscription?.userId !== userId) {
+    return { success: false, message: "Anda tidak berhak mengubah langganan ini." };
+  }
+
+  await prisma.subscription.update({
+    where: { id: subscriptionId },
+    data: { status: 'CANCELED' },
+  });
+
+  revalidatePath('/dashboard');
+  return { success: true, message: "Langganan berhasil dibatalkan." };
+}
+
+export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: Date }) {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Akses ditolak: Hanya admin yang dapat melihat halaman ini.");
+  }
+
+  const whereClause = {
+    createdAt: { gte: from, lte: to },
+  };
+
+  const totalSubscriptions = await prisma.subscription.count();
+  const activeSubscriptions = await prisma.subscription.count({ where: { status: 'ACTIVE' } });
+
+  const newInRange = await prisma.subscription.count({ where: whereClause });
+  const mrr = await prisma.subscription.aggregate({
+    _sum: { totalPrice: true },
+    where: { status: 'ACTIVE' },
+  });
+  const canceledInRange = await prisma.subscription.count({
+    where: {
+      status: 'CANCELED',
+      updatedAt: { gte: from, lte: to }
+    }
+  });
+
+  return {
+    totalSubscriptions,
+    activeSubscriptions,
+    newInRange,
+    mrr: mrr._sum.totalPrice || 0,
+    canceledInRange,
+  };
 }
