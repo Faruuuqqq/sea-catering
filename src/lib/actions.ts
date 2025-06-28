@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client"
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { auth } from "@/app/api/auth/[...nextauth]/route"
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,13 @@ export async function createTestimonial(formData: FormData) {
 }
 
 export async function createSubscription(data: any) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, message: "Anda harus login untuk berlangganan." };
+  }
+  const userId = parseInt(session.user.id); // ubah id dari string ke number jika perlu
+
+  console.log("Data diterima oleh server:", data);
   try {
     const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
     if (!plan) {
@@ -49,6 +57,7 @@ export async function createSubscription(data: any) {
         deliveryDays: data.deliveryDays,
         allergies: data.allergies,
         totalPrice: serverTotalPrice,
+        userId: userId,
       },
     });
 
@@ -95,4 +104,33 @@ export async function registerUser(data: any) {
     console.error("Registrasi gagal:", error);
     return { success: false, message: "Terjadi kesalahan saat registrasi." };
   }
+}
+
+// --- Action untuk mengambil langganan milik user tertentu ---
+export async function getUserSubscriptions() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return [];
+  }
+  const userId = parseInt(session.user.id);
+
+  const subscriptions = await prisma.subscription.findMany({
+    where: {
+      userId: userId,
+    },
+    // Sertakan data dari MealPlan agar kita bisa menampilkan nama plan-nya
+    include: {
+      mealPlan: true, 
+    },
+    orderBy: {
+      createdAt: 'desc',
+    }
+  });
+
+  // Serialisasi data agar aman dikirim ke client component jika perlu
+  return subscriptions.map(sub => ({
+    ...sub,
+    createdAt: sub.createdAt.toISOString(),
+    updatedAt: sub.updatedAt.toISOString(),
+  }));
 }
