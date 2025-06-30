@@ -1,68 +1,88 @@
 import React from 'react';
 import Link from 'next/link';
-
-type NavLink = {
-  name: string;
-  href: string;
-};
-
-const navLinks: NavLink[] = [
-  { name: 'Home', href: '/' },
-  { name: 'Meal Plans', href: '/menu' },
-  { name: 'Subscription', href: '/subscription' },
-  { name: 'Contact Us', href: '/contact' },
-];
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Send, Utensils, Instagram, Facebook, Twitter } from "lucide-react";
 
 const Footer = () => {
+  const companyLinks = [
+    { name: 'Tentang Kami', href: '/about' },
+    { name: 'Karir', href: '/careers' },
+    { name: 'Blog', href: '/blog' },
+  ];
+  const supportLinks = [
+    { name: 'Pusat Bantuan', href: '/help' },
+    { name: 'FAQ', href: '/faq' },
+    { name: 'Hubungi Kami', href: '/contact' },
+  ];
+  const legalLinks = [
+    { name: 'Kebijakan Privasi', href: '/privacy' },
+    { name: 'Syarat & Ketentuan', href: '/terms' },
+  ];
+
   return (
-    <footer className="bg-dark-green text-cream">
-      <div className="container mx-auto py-12 px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <footer className="bg-secondary text-secondary-foreground">
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
-          {/* Branding */}
-          <div className="lg:col-span-2">
-            <h3 className="text-2xl font-bold text-white">SEA Catering</h3>
-            <p className="mt-2 text-cream/80 max-w-sm">
-              Healthy Meals, Anytime, Anywhere
+          {/* Kolom 1: Branding & Deskripsi */}
+          <div className="lg:col-span-1 space-y-4">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <Utensils className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold text-foreground">SEA Catering</span>
+            </Link>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Merevolusi makanan sehat di Indonesia dengan personalisasi bertenaga AI, rasa yang luar biasa, dan pengiriman yang andal.
             </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-bold text-lg text-white tracking-wider">Quick Links</h4>
-            <ul className="mt-4 space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-cream/80 hover:text-accent transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Social Media */}
-          <div>
-            <h4 className="font-bold text-lg text-white tracking-wider">Follow Us</h4>
-            <div className="flex space-x-4 mt-4">
-              <a href="#" aria-label="Instagram" className="text-cream/80 hover:text-accent transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  {/* Instagram Icon Path */}
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069s-3.585-.011-4.85-.069c-3.225-.149-4.771-1.664-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919C8.415 2.175 8.796 2.163 12 2.163zm0 1.441c-3.117 0-3.486.01-4.711.065-2.698.123-3.974 1.4-4.098 4.098-.056 1.225-.066 1.593-.066 4.711s.01 3.486.066 4.711c.123 2.698 1.4 3.974 4.098 4.098 1.225.056 1.593.066 4.711.066s3.486-.01 4.711-.066c2.698-.123 3.974-1.4 4.098-4.098.056-1.225.066-1.593.066-4.711s-.01-3.486-.066-4.711c-.123-2.698-1.4-3.974-4.098-4.098-1.225-.056-1.593-.066-4.711-.066zm0 2.993c-1.996 0-3.612 1.616-3.612 3.612s1.616 3.612 3.612 3.612 3.612-1.616 3.612-3.612-1.616-3.612-3.612-3.612zm0 5.781c-1.196 0-2.169-.973-2.169-2.169s.973-2.169 2.169-2.169 2.169.973 2.169 2.169-.973 2.169-2.169 2.169zm4.336-5.781c-.663 0-1.2.537-1.2 1.2s.537 1.2 1.2 1.2 1.2-.537 1.2-1.2-.537-1.2-1.2-1.2z" />
-                </svg>
-              </a>
-              <a href="#" aria-label="Facebook" className="text-cream/80 hover:text-accent transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  {/* Facebook Icon Path */}
-                  <path d="M22.675 0h-21.35C.59 0 0 .59 0 1.325v21.35C0 23.41.59 24 1.325 24H12.82v-9.29H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.735 0 1.325-.59 1.325-1.325V1.325C24 .59 23.41 0 22.675 0z" />
-                </svg>
-              </a>
+            <div className="flex space-x-4">
+              <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary"><Instagram size={20} /></a>
+              <a href="#" aria-label="Facebook" className="text-muted-foreground hover:text-primary"><Facebook size={20} /></a>
+              <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-primary"><Twitter size={20} /></a>
             </div>
+          </div>
+
+          {/* Kolom 2, 3, 4: Quick Links */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:col-span-2">
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Perusahaan</h4>
+              <ul className="space-y-3">
+                {companyLinks.map(link => <li key={link.name}><Link href={link.href} className="text-muted-foreground hover:text-primary text-sm transition-colors">{link.name}</Link></li>)}
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Dukungan</h4>
+              <ul className="space-y-3">
+                {supportLinks.map(link => <li key={link.name}><Link href={link.href} className="text-muted-foreground hover:text-primary text-sm transition-colors">{link.name}</Link></li>)}
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
+              <ul className="space-y-3">
+                {legalLinks.map(link => <li key={link.name}><Link href={link.href} className="text-muted-foreground hover:text-primary text-sm transition-colors">{link.name}</Link></li>)}
+              </ul>
+            </div>
+          </div>
+          
+          {/* Kolom 5: Newsletter */}
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Berlangganan Newsletter Kami</h4>
+            <p className="text-muted-foreground text-sm mb-4">
+              Dapatkan tips sehat, resep baru, dan promo spesial langsung di email Anda.
+            </p>
+            <form className="flex gap-2">
+              <Input type="email" placeholder="Email Anda" className="bg-background" />
+              <Button type="submit" size="icon">
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
           </div>
 
         </div>
 
-        <div className="mt-12 pt-8 border-t border-mid-green/50 text-center text-cream/60 text-sm">
+        {/* Bagian Copyright Bawah */}
+        <div className="mt-16 pt-8 border-t text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} SEA Catering. Dibuat dengan ❤ untuk Compfest.</p>
         </div>
       </div>
