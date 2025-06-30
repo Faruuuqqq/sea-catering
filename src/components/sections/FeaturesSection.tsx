@@ -1,40 +1,32 @@
-import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Zap, Truck, Award } from "lucide-react";
 
 const features = [
-  {
-    title: 'Menu Customization',
-    description: 'Choose your preferred protein, carbohydrates, and vegetables.',
-  },
-  {
-    title: 'Delivery to Major Cities',
-    description: 'We serve Jakarta, Surabaya, Bandung, and other cities.',
-  },
-  {
-    title: 'Detailed Nutrition Information',
-    description: 'Find out the calories and macronutrients in each meal portion.',
-  },
+  { icon: Zap, title: "AI-Powered Meal Matching", description: "Sistem cerdas kami mempelajari preferensi dan tujuan kesehatan Anda untuk menyarankan makanan yang paling pas." },
+  { icon: Truck, title: "Fast & Reliable Delivery", description: "Pengiriman di hari yang sama di lebih dari 15 kota dengan pelacakan real-time untuk kesegaran maksimal." },
+  { icon: Award, title: "Chef-Crafted Excellence", description: "Setiap resep dikembangkan oleh talenta kuliner terbaik dan disetujui oleh tim nutrisi kami." },
 ];
 
-const FeaturesSection = () => {
+export const FeaturesSection = () => {
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-dark-green mb-10">
-          Our Main Services
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="card text-center">
-              <div className="card-body">
-                <h3 className="text-xl font-bold text-dark-green">{feature.title}</h3>
-                <p className="mt-2 text-text-main/80">{feature.description}</p>
-              </div>
-            </div>
+    <section className="py-20 bg-cream">
+      <div className="container mx-auto text-center">
+        <h2 className="text-4xl font-black text-dark-green mb-4">Kenapa Memilih SEA Catering?</h2>
+        <p className="text-lg text-text-main/80 max-w-2xl mx-auto mb-12">Kami menggabungkan teknologi mutakhir dengan keunggulan kuliner.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature) => (
+          <Card key={feature.title} className="text-left text-foreground bg-white shadow-md hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-8">
+              <div className="w-14 h-14 bg-dark-green/10 rounded-xl flex items-center justify-center mb-5">
+                    <feature.icon className="h-7 w-7 text-dark-green" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-text-main/80">{feature.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
     </section>
   );
 };
-
-export default FeaturesSection;
