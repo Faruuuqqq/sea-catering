@@ -2,22 +2,27 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type DateRange } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from "./button";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function DateRangePicker() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const from = searchParams.get('from') ? new Date(searchParams.get('from')!) : new Date(new Date().setDate(new Date().getDate() - 29));
-  const to = searchParams.get('to') ? new Date(searchParams.get('to')!) : new Date();
+  const from = searchParams.get('from') ? new Date(searchParams.get('from')) : new Date(new Date().setDate(new Date().getDate() - 29));
+  const to = searchParams.get('to') ? new Date(searchParams.get('to')) : new Date();
 
-  const [range, setRange] = useState({ from, to });
+  const [range, setRange] = useState<DateRange | undefined>({ from, to });
 
-  const handleSelect = (selectedRange: any) => {
+  const handleSelect = (selectedRange: DateRange | undefined) => {
+    setRange(selectedRange);
+
     if (selectedRange?.from && selectedRange?.to) {
-      setRange(selectedRange);
       const fromISO = format(selectedRange.from, 'yyyy-MM-dd');
       const toISO = format(selectedRange.to, 'yyyy-MM-dd');
       router.push(`/admin/dashboard?from=${fromISO}&to=${toISO}`);
@@ -25,19 +30,40 @@ export function DateRangePicker() {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <p className="font-semibold mb-2 text-center text-dark-green">Pilih Rentang Tanggal</p>
-      <div className="flex justify-center">
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-full justify-start text-left font-normal md:w-[300px]",
+            !range && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {range?.from ? (
+            range.to ? (
+              <>
+                {format(range.from, "d LLL, y")} - {format(range.to, "d LLL, y")}
+              </>
+            ) : (
+              format(range.from, "d LLL, y")
+            )
+          ) : (
+            <span>Pilih rentang tanggal</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-8" align="end">
         <DayPicker
+          initialFocus
           mode="range"
+          defaultMonth={range?.from}
           selected={range}
           onSelect={handleSelect}
           numberOfMonths={2}
+          disabled={{ before: new Date() }} // Disabling past dates
         />
-      </div>
-      <p className="text-center text-sm text-text-main/80 mt-2">
-        Menampilkan data dari <span className="font-semibold">{format(range.from, "d MMM yyyy")}</span> hingga <span className="font-semibold">{format(range.to, "d MMM yyyy")}</span>.
-      </p>
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
