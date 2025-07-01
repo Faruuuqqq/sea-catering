@@ -81,11 +81,7 @@ export async function getUserSubscriptions() {
     }
   });
 
-  return subscriptions.map(sub => ({
-    ...sub,
-    createdAt: sub.createdAt.toISOString(),
-    updatedAt: sub.updatedAt.toISOString(),
-  }));
+  return subscriptions;
 }
 
 export async function getAllSubscriptions() {
@@ -103,15 +99,13 @@ export async function getAllSubscriptions() {
       createdAt: 'desc',
     }
   });
-
+  
   return subscriptions.map(sub => ({
-    ...sub,
-    createdAt: sub.createdAt.toISOString(),
-    updatedAt: sub.updatedAt.toISOString(),
-    user: {
-      ...sub.user,
-      password: '', 
-    }
+      ...sub,
+      user: {
+        ...sub.user,
+        password: '', 
+      }
   }));
 }
 

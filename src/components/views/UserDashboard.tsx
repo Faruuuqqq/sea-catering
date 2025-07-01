@@ -4,6 +4,8 @@ import { useState, useEffect, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { DayPicker, type DateRange } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 
 import { getUserSubscriptions, pauseSubscription, cancelSubscription, reactivateSubscription } from "@/lib/actions/subscription.actions";
 import type { Subscription, MealPlan } from "@prisma/client";
@@ -11,7 +13,28 @@ import type { Subscription, MealPlan } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Play, Pause, X, Calendar, Utensils, Truck, Package, DollarSign, AlertCircle } from "lucide-react";
 
@@ -49,29 +72,48 @@ export function UserDashboard() {
 
   const [subscriptions, setSubscriptions] = useState<SubscriptionWithPlan[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [pauseDateRange, setPauseDateRange] = useState<DateRange | undefined>();
+
+  const fetchSubscriptions = async () => {
+    const userSubscriptions = await getUserSubscriptions();
+    setSubscriptions(userSubscriptions);
+  };
 
   useEffect(() => {
     if (status === 'authenticated') {
-      startTransition(async () => {
-        const userSubscriptions = await getUserSubscriptions();
-        setSubscriptions(userSubscriptions as SubscriptionWithPlan[]);
-      });
+      startTransition(fetchSubscriptions);
     }
-  }, [status]); // Dependensi sekarang benar
+  }, [status]);
 
-  const handleAction = (action: (id: number) => Promise<ServerActionResult>, id: number) => {
+  const handleSimpleAction = (action: (id: number) => Promise<ServerActionResult>, id: number) => {
     startTransition(async () => {
       const result = await action(id);
       if (result.success) {
         toast.success("Status Diperbarui", { description: result.message });
-        // Ambil ulang data untuk me-refresh UI
-        const updatedSubs = await getUserSubscriptions();
-        setSubscriptions(updatedSubs as SubscriptionWithPlan[]);
+        await fetchSubscriptions();
       } else {
         toast.error("Gagal", { description: result.message });
       }
     });
   };
+
+  const handlePauseSubmit = (subscriptionId: number) => {
+    if (!pauseDateRange?.from || !pauseDateRange?.to) {
+      toast.error("Gagal", { description: "Silakan pilih rentang tanggal jeda." });
+      return;
+    }
+    
+    startTransition(async () => {
+        const result = await pauseSubscription(subscriptionId, pauseDateRange.from!, pauseDateRange.to!);
+        if (result.success) {
+            toast.success("Langganan Dijeda", { description: result.message });
+            await fetchSubscriptions();
+        } else {
+            toast.error("Gagal Menjeda", { description: result.message });
+        }
+    });
+  };
+
 
   const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" => {
     if (status === 'ACTIVE') return 'default';
@@ -126,10 +168,38 @@ export function UserDashboard() {
                   </CardContent>
                   <CardFooter className="bg-secondary/50 p-4 flex gap-2 border-t">
                     {sub.status === 'ACTIVE' && (
-                      <Button size="sm" variant="outline" onClick={() => handleAction(pauseSubscription, sub.id)} disabled={isPending}><Pause className="h-4 w-4 mr-2" /> Jeda</Button>
+                      <Dialog onOpenChange={(open) => !open && setPauseDateRange(undefined)}>
+                            <DialogTrigger asChild>
+                                <Button size="sm" variant="outline" disabled={isPending}><Pause className="h-4 w-4 mr-2" /> Jeda</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Jeda Langganan</DialogTitle>
+                                    <DialogDescription>Pilih rentang tanggal untuk menjeda langganan Anda.</DialogDescription>
+                                </DialogHeader>
+                                <div className="flex justify-center">
+                                    <DayPicker
+                                        mode="range"
+                                        selected={pauseDateRange}
+                                        onSelect={setPauseDateRange}
+                                        fromDate={new Date()}
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="secondary">Batal</Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                        <Button onClick={() => handlePauseSubmit(sub.id)} disabled={!pauseDateRange?.from || !pauseDateRange?.to || isPending}>
+                                            {isPending ? "Menjeda..." : "Konfirmasi Jeda"}
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                      </Dialog>
                     )}
                     {sub.status === 'PAUSED' && (
-                      <Button size="sm" variant="outline" onClick={() => handleAction(reactivateSubscription, sub.id)} disabled={isPending} className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"><Play className="h-4 w-4 mr-2" /> Aktifkan Kembali</Button>
+                      <Button size="sm" variant="outline" onClick={() => handleSimpleAction(reactivateSubscription, sub.id)} disabled={isPending} className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"><Play className="h-4 w-4 mr-2" /> Aktifkan Kembali</Button>
                     )}
                     {sub.status !== 'CANCELED' && (
                       <AlertDialog>
@@ -138,7 +208,7 @@ export function UserDashboard() {
                           <AlertDialogHeader><AlertDialogTitle>Apakah Anda Yakin?</AlertDialogTitle><AlertDialogDescription>Aksi ini akan membatalkan langganan Anda secara permanen.</AlertDialogDescription></AlertDialogHeader>
                           <AlertDialogFooter>
                               <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleAction(cancelSubscription, sub.id)}>Ya, Batalkan</AlertDialogAction>
+                              <AlertDialogAction onClick={() => handleSimpleAction(cancelSubscription, sub.id)}>Ya, Batalkan</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
