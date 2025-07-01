@@ -16,6 +16,11 @@
 
 ---
 
+## Live Demo
+Aplikasi ini telah di-deploy dan dapat diakses secara publik melalui **[Vercel](https://sea-catering-five.vercel.app/)**
+
+---
+
 ## Tentang Proyek
 
 **SEA Catering** adalah solusi modern untuk tantangan makan sehat di tengah kesibukan. Aplikasi ini memungkinkan pengguna untuk berlangganan paket makanan sehat yang dapat disesuaikan sepenuhnya, diantar langsung ke lokasi mereka di seluruh Indonesia. Proyek ini dibangun sebagai submission untuk *technical challenge*, mencakup semua aspek pengembangan aplikasi web modern, mulai dari UI/UX, sistem langganan, autentikasi aman, hingga dashboard analitik untuk admin.
