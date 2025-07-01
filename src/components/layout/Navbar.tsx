@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Home, Utensils, CreditCard, Mail, LayoutDashboard, ShieldUser } from 'lucide-react';
+import { Menu, Home, Utensils, CreditCard, Mail, LayoutDashboard, ShieldUser, Sparkles } from 'lucide-react';
 import { AuthStatus } from './AuthStatus';
 
 export default function Navbar() {
@@ -18,6 +18,7 @@ export default function Navbar() {
     { name: 'Home', href: '/', icon: Home },
     { name: 'Menu', href: '/menu', icon: Utensils },
     { name: 'Subscription', href: '/subscription', icon: CreditCard },
+    { name: 'AI Consultation', href: '/consultation', icon: Sparkles },
     { name: 'Contact', href: '/contact', icon: Mail },
   ];
 
