@@ -4,25 +4,33 @@ import React, { useState, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { createTestimonial } from '@/lib/actions/testimonial.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Star, Send } from 'lucide-react';
+import type { Session } from 'next-auth';
 import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Star, Send } from 'lucide-react';
 
-const AuthenticatedForm = ({ session }: { session: any }) => {
+type ServerActionResult = {
+  success: boolean;
+  message: string;
+};
+
+const AuthenticatedForm = ({ session }: { session: Session }) => {
     const [rating, setRating] = useState(5);
     const [isPending, startTransition] = useTransition();
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (formData: FormData) => {
         formData.append('rating', rating.toString());
+
         startTransition(async () => {
-            const result = await createTestimonial(formData);
+            const result: ServerActionResult = await createTestimonial(formData);
+            
             if (result.success) {
-                toast.success("Review Terkirim!", { description: "Terima kasih atas masukan Anda." });
+                toast.success("Review Terkirim!", { description: result.message });
                 formRef.current?.reset();
                 setRating(5);
             } else {
@@ -59,6 +67,7 @@ const AuthenticatedForm = ({ session }: { session: any }) => {
                                 );
                             })}
                         </div>
+                        <input type="hidden" name="rating" value={rating} />
                     </div>
                     <Button type="submit" className="w-full" disabled={isPending}>
                         <Send className="w-4 h-4 mr-2" />
@@ -71,24 +80,17 @@ const AuthenticatedForm = ({ session }: { session: any }) => {
 };
 
 const LoginPrompt = () => {
-  return (
-    <div className="card max-w-2xl mx-auto">
-      <div className="card-body text-center">
-        <h3 className="text-2xl font-bold text-dark-green mb-4">Ingin Memberi Review?</h3>
-        <p className="text-text-main mb-6">Silakan login terlebih dahulu untuk membagikan pengalamanmu bersama kami.</p>
-        <Link href="/login" className="btn btn-primary">
-          Login untuk Memberi Review
-        </Link>
-      </div>
-    </div>
-  );
-};
+    return (
+        <Card className="text-center"><CardContent className="p-8">
+            <h3 className="text-xl font-bold mb-2">Ingin Memberi Review?</h3>
+            <p className="text-muted-foreground mb-4">Silakan login terlebih dahulu.</p>
+            <Button asChild><Link href="/login">Login</Link></Button>
+        </CardContent></Card>
+    )
+}
+const LoadingSkeleton = () => <Card className="h-96 w-full max-w-2xl mx-auto bg-muted animate-pulse" />
 
-const LoadingSkeleton = () => {
-  return <div className="card max-w-2xl mx-auto h-96 bg-gray-200 animate-pulse"></div>;
-};
-
-export const TestimonialForm = () => {
+export function TestimonialForm() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
@@ -98,6 +100,6 @@ export const TestimonialForm = () => {
   if (status === "authenticated") {
     return <AuthenticatedForm session={session} />;
   }
-  
+
   return <LoginPrompt />;
 };

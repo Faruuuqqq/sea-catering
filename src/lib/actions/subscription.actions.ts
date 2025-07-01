@@ -1,9 +1,9 @@
-"use server"
+"use server";
 
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/app/api/auth/[...nextauth]/route"
-import { type SubscriptionFormData } from '@/lib/validators';
+import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { subscriptionSchema, type SubscriptionFormData } from "@/lib/validators";
 
 const prisma = new PrismaClient();
 
@@ -12,6 +12,18 @@ export async function getMealPlans() {
 }
 
 export async function createSubscription(data: SubscriptionFormData) {
+  const validationResult = subscriptionSchema.safeParse(data);
+
+  if (!validationResult.success) {
+    console.error("Validasi server gagal:", validationResult.error.flatten().fieldErrors);
+    return { 
+      success: false, 
+      message: "Data yang dikirim tidak valid. Silakan periksa kembali isian Anda." 
+    };
+  }
+
+  const validatedData = validationResult.data;
+
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, message: "Anda harus login untuk berlangganan." };
@@ -19,31 +31,30 @@ export async function createSubscription(data: SubscriptionFormData) {
   const userId = parseInt(session.user.id);
 
   try {
-    const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
+    const plan = await prisma.mealPlan.findUnique({ where: { id: validatedData.planId } });
     if (!plan) {
       return { success: false, message: 'Meal Plan yang dipilih tidak valid.' };
     }
 
-    const numMealTypes = Object.values(data.mealTypes).filter(Boolean).length;
-    const numDeliveryDays = data.deliveryDays.length;
+    const numMealTypes = validatedData.mealTypes.length;
+    const numDeliveryDays = validatedData.deliveryDays.length;
     const serverTotalPrice = plan.price * numMealTypes * numDeliveryDays * 4.3;
-
-    const mealTypesArray = Object.keys(data.mealTypes).filter(key => data.mealTypes[key]);
 
     await prisma.subscription.create({
       data: {
-        customerName: data.name,
-        customerPhone: data.phone,
-        mealPlanId: data.planId,
-        mealTypes: mealTypesArray,
-        deliveryDays: data.deliveryDays,
-        allergies: data.allergies,
+        customerName: validatedData.name,
+        customerPhone: validatedData.phone,
+        mealPlanId: validatedData.planId,
+        mealTypes: validatedData.mealTypes,
+        deliveryDays: validatedData.deliveryDays,
+        allergies: validatedData.allergies,
         totalPrice: serverTotalPrice,
         userId: userId,
       },
     });
 
     revalidatePath('/subscription');
+    revalidatePath('/dashboard');
     return { success: true, message: 'Berhasil berlangganan! Terima kasih.' };
   } catch (error) {
     console.error("Gagal membuat subscription:", error); 

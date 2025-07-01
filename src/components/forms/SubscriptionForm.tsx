@@ -2,11 +2,11 @@
 
 import { useForm, Controller } from 'react-hook-form'; 
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useEffect, useState, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
+import { subscriptionSchema, type SubscriptionFormData } from '@/lib/validators';
 import { createSubscription, getMealPlans } from '@/lib/actions/subscription.actions';
 import type { MealPlan } from '@prisma/client';
 
@@ -18,16 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calculator } from "lucide-react";
-
-const subscriptionSchema = z.object({
-  name: z.string().min(3, "Nama lengkap diperlukan"),
-  phone: z.string().min(10, "Nomor telepon aktif diperlukan").regex(/^\d+$/, "Hanya angka"),
-  planId: z.coerce.number().min(1, "Pilih salah satu plan"),
-  mealTypes: z.array(z.string()).min(1, "Pilih minimal satu jenis makanan"),
-  deliveryDays: z.array(z.string()).min(1, "Pilih minimal satu hari pengiriman"),
-  allergies: z.string().optional(),
-});
-type SubscriptionFormData = z.infer<typeof subscriptionSchema>;
 
 export function SubscriptionForm() {
   const { data: session } = useSession();
@@ -135,7 +125,7 @@ export function SubscriptionForm() {
                               checked={field.value?.includes(type)}
                               onCheckedChange={(checked) => {
                                 return checked
-                                  ? field.onChange([...field.value, type])
+                                  ? field.onChange([...(field.value || []), type])
                                   : field.onChange(field.value?.filter(v => v !== type))
                               }}
                             /> {type}
@@ -159,7 +149,7 @@ export function SubscriptionForm() {
                               checked={field.value?.includes(day)}
                               onCheckedChange={(checked) => {
                                 return checked
-                                  ? field.onChange([...field.value, day])
+                                  ? field.onChange([...(field.value || []), day])
                                   : field.onChange(field.value?.filter(v => v !== day))
                               }}
                             /> {day}
@@ -188,7 +178,7 @@ export function SubscriptionForm() {
                 {totalPrice > 0 ? (
                   <>
                     <div className="text-sm text-muted-foreground">
-                      {mealPlans.find(p => p.id === Number(watchedValues.planId))?.price.toLocaleString('id-ID')} × {watchedValues.mealTypes?.length} meals × {watchedValues.deliveryDays?.length} days × 4.3 weeks
+                      {mealPlans.find(p => p.id === Number(watchedValues.planId))?.price.toLocaleString('id-ID')} &times; {watchedValues.mealTypes?.length} meals &times; {watchedValues.deliveryDays?.length} days &times; 4.3 weeks
                     </div>
                     <div className="flex justify-between items-center border-t pt-4">
                       <span className="font-semibold">Total Bulanan:</span>
