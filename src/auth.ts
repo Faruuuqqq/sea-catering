@@ -3,7 +3,9 @@ import type { NextAuthConfig } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import type { User } from "@prisma/client";
+import type { User } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
 const prisma = new PrismaClient();
 
@@ -14,16 +16,17 @@ export const authOptions: NextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
-        const u = user as User;
-        token.id = String(u.id);
-        token.role = u.role;
+        token.id = user.id;
+        if ('role' in user) {
+          token.role = (user as unknown as { role: string }).role;
+        }
       }
       return token;
     },
-    session({ session, token }) {
-      if (session.user) {
+    session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user && token.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
       }
@@ -37,22 +40,27 @@ export const authOptions: NextAuthConfig = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (typeof credentials?.email !== 'string' || typeof credentials?.password !== 'string') {
           return null;
         }
 
-        const user = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) return null;
+        if (!dbUser) return null;
 
-        const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordMatch = await bcrypt.compare(credentials.password, dbUser.password);
 
         if (!isPasswordMatch) return null;
 
-        return user;
+        return {
+            id: String(dbUser.id),
+            name: dbUser.name,
+            email: dbUser.email,
+            role: dbUser.role,
+        };
       },
     }),
   ],
