@@ -95,6 +95,7 @@ Ikuti langkah-langkah ini untuk menjalankan proyek secara lokal.
         DATABASE_URL="postgres://[db-user].[project-ref]:[db-password]@aws-0-[aws-region].pooler.supabase.com:6543/[db-name]?pgbouncer=true"
         DIRECT_URL="postgres://[db-user].[project-ref]:[db-password]@aws-0-[aws-region].pooler.supabase.com:6543/[db-name]"
         AUTH_SECRET="SECRET_YANG_SUDAH_DI_GENERATE"
+        GEMINI_API_KEY="GOOGLE_AI_STUDIO_API_KEY"
         ```
 
 4.  **Setup Database:**
