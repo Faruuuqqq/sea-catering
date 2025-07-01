@@ -14,8 +14,11 @@ export function DateRangePicker() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const from = searchParams.get('from') ? new Date(searchParams.get('from')) : new Date(new Date().setDate(new Date().getDate() - 29));
-  const to = searchParams.get('to') ? new Date(searchParams.get('to')) : new Date();
+  const fromParam = searchParams.get('from');
+  const toParam = searchParams.get('to');
+
+  const from = fromParam ? new Date(fromParam) : new Date(new Date().setDate(new Date().getDate() - 29));
+  const to = toParam ? new Date(toParam) : new Date();
 
   const [range, setRange] = useState<DateRange | undefined>({ from, to });
 

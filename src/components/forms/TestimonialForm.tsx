@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Star, Send } from 'lucide-react';
 
 type ServerActionResult = {
-  success: boolean;
-  message: string;
+    success: boolean;
+    message: string;
 };
 
 const AuthenticatedForm = ({ session }: { session: Session }) => {
@@ -91,15 +91,15 @@ const LoginPrompt = () => {
 const LoadingSkeleton = () => <Card className="h-96 w-full max-w-2xl mx-auto bg-muted animate-pulse" />
 
 export function TestimonialForm() {
-  const { data: session, status } = useSession();
+const { data: session, status } = useSession();
 
-  if (status === "loading") {
+if (status === "loading") {
     return <LoadingSkeleton />;
-  }
+}
 
-  if (status === "authenticated") {
+if (status === "authenticated") {
     return <AuthenticatedForm session={session} />;
-  }
+}
 
-  return <LoginPrompt />;
+return <LoginPrompt />;
 };

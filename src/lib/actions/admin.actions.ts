@@ -5,7 +5,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Helper untuk mendapatkan nomor minggu dari sebuah tanggal
 declare global {
     interface Date {
         getWeek(): number;
@@ -42,7 +41,6 @@ export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: D
     where: { status: 'ACTIVE' },
   });
 
-  // PERBAIKAN: Data untuk grafik: Pertumbuhan langganan 12 MINGGU terakhir
   const weeklySubsData = await prisma.$queryRaw<Array<{ week_start: Date, count: bigint }>>`
     SELECT date_trunc('week', "createdAt") as week_start, COUNT(id) as count
     FROM "Subscription"
@@ -51,9 +49,8 @@ export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: D
     ORDER BY week_start ASC;
   `;
   
-  // Format data agar siap digunakan oleh Recharts
   const subscriptionGrowth = weeklySubsData.map(d => ({
-    week: `W${new Date(d.week_start).getWeek()}`, // Format label menjadi "W25", "W26", dst.
+    week: `W${new Date(d.week_start).getWeek()}`,
     "Langganan Baru": Number(d.count)
   }));
 
