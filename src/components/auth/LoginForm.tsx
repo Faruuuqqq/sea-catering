@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, ArrowRight, Shield, Users, Zap } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shield, Users } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -89,8 +89,8 @@ export function LoginForm() {
               <div>
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                   <Input id="password" name="password" type="password" className="pl-10" required />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input id="password" name="password" type="password" className="pl-10" required />
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">

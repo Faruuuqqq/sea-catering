@@ -105,8 +105,8 @@ export function RegisterForm() {
               <div>
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                   <Input id="password" type="password" placeholder="Minimal 8 karakter" className="pl-10" {...register('password')} />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input id="password" type="password" placeholder="Minimal 8 karakter" className="pl-10" {...register('password')} />
                 </div>
                 {errors.password && <p className="text-sm text-destructive mt-1">{errors.password.message}</p>}
               </div>

@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client"
 import { revalidatePath } from "next/cache";
 import { auth } from "@/app/api/auth/[...nextauth]/route"
+import { type SubscriptionFormData } from '@/lib/validators';
 
 const prisma = new PrismaClient();
 
@@ -10,14 +11,13 @@ export async function getMealPlans() {
   return await prisma.mealPlan.findMany();
 }
 
-export async function createSubscription(data: any) {
+export async function createSubscription(data: SubscriptionFormData) {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, message: "Anda harus login untuk berlangganan." };
   }
   const userId = parseInt(session.user.id);
 
-  console.log("Data diterima oleh server:", data);
   try {
     const plan = await prisma.mealPlan.findUnique({ where: { id: data.planId } });
     if (!plan) {

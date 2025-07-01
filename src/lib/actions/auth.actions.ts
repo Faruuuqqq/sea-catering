@@ -2,10 +2,11 @@
 
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs";
+import { type RegisterFormData } from '@/lib/validators';
 
 const prisma = new PrismaClient();
 
-export async function registerUser(data: any) {
+export async function registerUser(data: RegisterFormData) {
   try {
     const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
     if (existingUser) {

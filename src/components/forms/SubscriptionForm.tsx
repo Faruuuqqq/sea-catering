@@ -11,13 +11,13 @@ import { createSubscription, getMealPlans } from '@/lib/actions/subscription.act
 import type { MealPlan } from '@prisma/client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calculator, AlertCircle } from "lucide-react";
+import { Calculator } from "lucide-react";
 
 const subscriptionSchema = z.object({
   name: z.string().min(3, "Nama lengkap diperlukan"),

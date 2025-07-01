@@ -21,7 +21,7 @@ export function DateRangePicker() {
 
   const handleSelect = (selectedRange: DateRange | undefined) => {
     setRange(selectedRange);
-
+    
     if (selectedRange?.from && selectedRange?.to) {
       const fromISO = format(selectedRange.from, 'yyyy-MM-dd');
       const toISO = format(selectedRange.to, 'yyyy-MM-dd');
@@ -49,11 +49,11 @@ export function DateRangePicker() {
               format(range.from, "d LLL, y")
             )
           ) : (
-            <span>Pilih rentang tanggal</span>
+            <span>Pilih tanggal</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-8" align="end">
+      <PopoverContent className="w-auto p-6 shadow-xl rounded-xl" align="end">
         <DayPicker
           initialFocus
           mode="range"
@@ -61,7 +61,6 @@ export function DateRangePicker() {
           selected={range}
           onSelect={handleSelect}
           numberOfMonths={2}
-          disabled={{ before: new Date() }} // Disabling past dates
         />
       </PopoverContent>
     </Popover>

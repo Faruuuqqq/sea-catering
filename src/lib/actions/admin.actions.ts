@@ -5,6 +5,22 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Helper untuk mendapatkan nomor minggu dari sebuah tanggal
+declare global {
+    interface Date {
+        getWeek(): number;
+    }
+}
+
+Date.prototype.getWeek = function() {
+    const date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+
 export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: Date }) {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") {
@@ -26,19 +42,19 @@ export async function getAdminDashboardMetrics({ from, to }: { from: Date; to: D
     where: { status: 'ACTIVE' },
   });
 
-  // Data untuk grafik: Pertumbuhan langganan 6 bulan terakhir
-  const monthlySubsData = await prisma.$queryRaw<Array<{ month: string, count: bigint }>>`
-    SELECT TO_CHAR(date_trunc('month', "createdAt"), 'YYYY-MM') as month, COUNT(id) as count
+  // PERBAIKAN: Data untuk grafik: Pertumbuhan langganan 12 MINGGU terakhir
+  const weeklySubsData = await prisma.$queryRaw<Array<{ week_start: Date, count: bigint }>>`
+    SELECT date_trunc('week', "createdAt") as week_start, COUNT(id) as count
     FROM "Subscription"
-    WHERE "createdAt" > date_trunc('month', NOW() - interval '6 month')
-    GROUP BY month
-    ORDER BY month ASC;
+    WHERE "createdAt" > date_trunc('week', NOW() - interval '12 week')
+    GROUP BY week_start
+    ORDER BY week_start ASC;
   `;
   
-  // Konversi BigInt ke Number agar aman untuk client
-  const subscriptionGrowth = monthlySubsData.map(d => ({
-    month: new Date(d.month + '-01').toLocaleDateString('id-ID', { month: 'short' }),
-    count: Number(d.count)
+  // Format data agar siap digunakan oleh Recharts
+  const subscriptionGrowth = weeklySubsData.map(d => ({
+    week: `W${new Date(d.week_start).getWeek()}`, // Format label menjadi "W25", "W26", dst.
+    "Langganan Baru": Number(d.count)
   }));
 
   return {

@@ -5,7 +5,6 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Quote } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 type Testimonial = {
   id: number;
@@ -20,7 +19,7 @@ type Props = {
 };
 
 export const TestimonialCarousel: React.FC<Props> = ({ testimonials }) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const [emblaRef] = useEmblaCarousel({ loop: true, align: 'start' });
 
   return (
     <div className="overflow-hidden" ref={emblaRef}>
@@ -31,7 +30,7 @@ export const TestimonialCarousel: React.FC<Props> = ({ testimonials }) => {
               <CardContent className="p-8">
                 <Quote className="h-8 w-8 text-primary/20 mb-4" />
                 <blockquote className="text-foreground text-lg leading-relaxed font-medium italic mb-6">
-                  "{testimonial.review}"
+                  {testimonial.review}
                 </blockquote>
               </CardContent>
               <div className="bg-secondary/50 p-6 flex items-center gap-4 border-t">

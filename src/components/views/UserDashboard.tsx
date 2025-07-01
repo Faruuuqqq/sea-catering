@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Play, Pause, X, Calendar, Utensils, Truck, Package, DollarSign, AlertCircle } from "lucide-react";
 
 type SubscriptionWithPlan = Subscription & { mealPlan: MealPlan };
+type ServerActionResult = { success: boolean; message?: string };
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
     <Card className="shadow-sm">
@@ -44,7 +45,8 @@ const LoadingSkeleton = () => (
 );
 
 export function UserDashboard() {
-  const { data: status } = useSession();
+  const { data: session, status } = useSession();
+
   const [subscriptions, setSubscriptions] = useState<SubscriptionWithPlan[]>([]);
   const [isPending, startTransition] = useTransition();
 
@@ -55,13 +57,14 @@ export function UserDashboard() {
         setSubscriptions(userSubscriptions as SubscriptionWithPlan[]);
       });
     }
-  }, [status]);
+  }, [status]); // Dependensi sekarang benar
 
-  const handleAction = (action: (id: number, ...args: any[]) => Promise<any>, id: number) => {
+  const handleAction = (action: (id: number) => Promise<ServerActionResult>, id: number) => {
     startTransition(async () => {
-      const result = await action(id, new Date(), new Date());
+      const result = await action(id);
       if (result.success) {
         toast.success("Status Diperbarui", { description: result.message });
+        // Ambil ulang data untuk me-refresh UI
         const updatedSubs = await getUserSubscriptions();
         setSubscriptions(updatedSubs as SubscriptionWithPlan[]);
       } else {
@@ -76,8 +79,10 @@ export function UserDashboard() {
     return 'destructive';
   }
 
-  if (status === 'loading' || (isPending && subscriptions.length === 0)) return <LoadingSkeleton />;
-  
+  if (status === 'loading' || (isPending && subscriptions.length === 0)) {
+    return <LoadingSkeleton />;
+  }
+
   const activeSubscriptions = subscriptions.filter(s => s.status === 'ACTIVE');
   const totalSpend = activeSubscriptions.reduce((sum, s) => sum + s.totalPrice, 0);
 
@@ -85,7 +90,7 @@ export function UserDashboard() {
     <div className="bg-secondary py-12">
       <div className="container mx-auto px-4">
         <div className="mb-10">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard Saya</h1>
+          <h1 className="text-3xl font-bold text-foreground">Welcome back, {session?.user?.name}!</h1>
           <p className="text-muted-foreground mt-1">Kelola semua langganan dan preferensi Anda di satu tempat.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -131,7 +136,10 @@ export function UserDashboard() {
                         <AlertDialogTrigger asChild><Button size="sm" variant="destructive" disabled={isPending}><X className="h-4 w-4 mr-2" /> Batalkan</Button></AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader><AlertDialogTitle>Apakah Anda Yakin?</AlertDialogTitle><AlertDialogDescription>Aksi ini akan membatalkan langganan Anda secara permanen.</AlertDialogDescription></AlertDialogHeader>
-                          <AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction onClick={() => handleAction(cancelSubscription, sub.id)}>Ya, Batalkan</AlertDialogAction></AlertDialogFooter>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleAction(cancelSubscription, sub.id)}>Ya, Batalkan</AlertDialogAction>
+                          </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
                     )}

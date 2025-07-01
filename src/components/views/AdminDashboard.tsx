@@ -30,7 +30,7 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
 const LoadingSkeleton = () => (
     <div className="space-y-8 mt-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6"><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /></div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><Skeleton className="h-80 w-full" /><Skeleton className="h-80 w-full" /></div>
+        <div className="grid grid-cols-1"><Skeleton className="h-80 w-full" /></div>
         <Card><CardHeader><Skeleton className="h-8 w-1/3" /></CardHeader><CardContent><Skeleton className="h-48 w-full" /></CardContent></Card>
     </div>
 );
@@ -80,17 +80,17 @@ function DashboardContent() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Pertumbuhan Langganan</CardTitle>
-          <CardDescription>Jumlah langganan baru dalam 6 bulan terakhir.</CardDescription>
+          <CardTitle>Pertumbuhan Langganan Mingguan</CardTitle>
+          <CardDescription>Jumlah langganan baru dalam 12 minggu terakhir.</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={metrics.subscriptionGrowth}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+              <XAxis dataKey="week" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
               <Tooltip formatter={(value: number) => [`${value} langganan`, "Baru"]} cursor={{fill: 'hsl(var(--primary), 0.1)'}} />
-              <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Langganan Baru" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
