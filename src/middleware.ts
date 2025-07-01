@@ -1,18 +1,15 @@
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 import { NextResponse } from 'next/server';
 
 export default auth((req) => {
-  const userRole = req.auth?.user?.role;
   const isLoggedIn = !!req.auth;
-  
-  if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+  const userRole = req.auth?.user?.role;
+  const { pathname } = req.nextUrl;
 
-  if (!isLoggedIn) {
-    const newUrl = new URL("/login", req.nextUrl.origin);
-    newUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
-    return Response.redirect(newUrl);
+  if (pathname.startsWith("/admin")) {
+    if (isLoggedIn && userRole !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 });
 

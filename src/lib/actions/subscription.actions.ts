@@ -2,7 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 import { subscriptionSchema, type SubscriptionFormData } from "@/lib/validators";
 
 const prisma = new PrismaClient();
